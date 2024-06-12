@@ -6,6 +6,32 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Articles</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="popular.html">Popular</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Destinations
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="destination-dropdown">
+                    <!-- Destinations will be populated here -->
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+
 <div class="container mt-5">
     <h1 class="mb-4">Articles</h1>
     <div id="articles" class="row">
@@ -59,10 +85,34 @@
                 articlesColumn.innerHTML = '<p class="text-danger">Failed to load articles.</p>';
             });
     }
+
+    function loadDestinations() {
+        fetch('/api/destinations')
+            .then(response => response.json())
+            .then(data => {
+                const dropdownMenu = document.getElementById('destination-dropdown');
+                dropdownMenu.innerHTML = ''; // Clear any existing items
+                data.items.forEach(destination => {
+                    const dropdownItem = document.createElement('a');
+                    dropdownItem.classList.add('dropdown-item');
+                    dropdownItem.href = `/platform/destinationArticles.html?destinationId=${destination.id}`;
+                    dropdownItem.textContent = destination.name;
+                    dropdownMenu.appendChild(dropdownItem);
+                    console.log(destination.name);
+                });
+            })
+            .catch(error => console.error('Error fetching destinations:', error));
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         let page = 1;
         getArticles(page);
+        loadDestinations();
     });
+
 </script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

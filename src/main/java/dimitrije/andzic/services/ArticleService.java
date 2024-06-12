@@ -6,10 +6,13 @@ import dimitrije.andzic.Pagination;
 import dimitrije.andzic.dtos.ActivityDto;
 import dimitrije.andzic.dtos.ArticleDto;
 import dimitrije.andzic.dtos.CommentDto;
+import dimitrije.andzic.dtos.Entity;
 import dimitrije.andzic.entities.Activity;
 import dimitrije.andzic.entities.Article;
 import dimitrije.andzic.entities.Comment;
 import dimitrije.andzic.entities.Destination;
+import dimitrije.andzic.errors.JsonParseError;
+import dimitrije.andzic.errors.ValidationError;
 import dimitrije.andzic.repositories.article.ArticleRepository;
 import dimitrije.andzic.repositories.article.ArticleRepositoryImplementation;
 import spark.Request;
@@ -53,32 +56,75 @@ public class ArticleService {
         return articleRepository.getById(id);
     }
 
-    public ArticleDto addArticle(Request request, Response response) throws JsonProcessingException {
-        ArticleDto a = objectMapper.readValue(request.body(), ArticleDto.class);
-        int author_id = request.session().attribute("id");
-        a.setAuthor_id(author_id);
-        return articleRepository.addArticle(a);
+    public Entity addArticle(Request request, Response response) {
+        if(request.body().contains("\"\"")){
+            response.status(400);
+            return new ValidationError("All fields must be filled!");
+        }
+        try {
+            ArticleDto a = objectMapper.readValue(request.body(), ArticleDto.class);
+            int author_id = request.session().attribute("id");
+            a.setAuthor_id(author_id);
+            return articleRepository.addArticle(a);
+        }
+        catch (JsonProcessingException e){
+            response.status(400);
+            return new JsonParseError();
+        }
+
+
     }
 
-    public Article addActivity(Request request, Response response) throws JsonProcessingException {
+    public Entity addActivity(Request request, Response response) {
         int id = Integer.parseInt(request.params(":id"));
-        ActivityDto a = objectMapper.readValue(request.body(), ActivityDto.class);
-        a.setArticle_id(id);
-        return articleRepository.addActivity(a);
+        if(request.body().contains("\"\"")){
+            response.status(400);
+            return new ValidationError("All fields must be filled!");
+        }
+        try {
+            ActivityDto a = objectMapper.readValue(request.body(), ActivityDto.class);
+            a.setArticle_id(id);
+            return articleRepository.addActivity(a);
+        }
+        catch (JsonProcessingException e){
+            response.status(400);
+            return new JsonParseError();
+        }
     }
 
-    public Article addComment(Request request, Response response) throws JsonProcessingException {
+    public Entity addComment(Request request, Response response) {
         int id = Integer.parseInt(request.params(":id"));
-        CommentDto a = objectMapper.readValue(request.body(), CommentDto.class);
-        a.setArticle_id(id);
-        return articleRepository.addComment(a);
+        if(request.body().contains("\"\"")){
+            response.status(400);
+            return new ValidationError("All fields must be filled!");
+        }
+
+        try {
+            CommentDto a = objectMapper.readValue(request.body(), CommentDto.class);
+            a.setArticle_id(id);
+            return articleRepository.addComment(a);
+        }
+        catch (JsonProcessingException e){
+            response.status(400);
+            return new JsonParseError();
+        }
     }
 
-    public Article updateArticle(Request request, Response response) throws JsonProcessingException {
+    public Entity updateArticle(Request request, Response response) throws JsonProcessingException {
         int id = Integer.parseInt(request.params(":id"));
-        ArticleDto a = objectMapper.readValue(request.body(), ArticleDto.class);
-        a.setId(id);
-        return articleRepository.updateArticle(a);
+        if(request.body().contains("\"\"")){
+            response.status(400);
+            return new ValidationError("All fields must be filled!");
+        }
+        try {
+            ArticleDto a = objectMapper.readValue(request.body(), ArticleDto.class);
+            a.setId(id);
+            return articleRepository.updateArticle(a);
+        }
+        catch (JsonProcessingException e){
+            response.status(400);
+            return new JsonParseError();
+        }
     }
 
     public String deleteArticle(Request request, Response response){
@@ -92,5 +138,10 @@ public class ArticleService {
         int id_activity = Integer.parseInt(request.params(":id_activity"));
         articleRepository.deleteActivity(id_activity, id_article);
         return "Activity successfully deleted!";
+    }
+
+    public Activity getActivity(Request request, Response response){
+        int id = Integer.parseInt(request.params(":id"));
+        return articleRepository.getActivity(id);
     }
 }

@@ -1,5 +1,6 @@
 package dimitrije.andzic.entities;
 
+import dimitrije.andzic.dtos.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @Getter@Setter@NoArgsConstructor@AllArgsConstructor
-public class Article implements Comparable<Article> {
+public class Article extends Entity implements Comparable<Article> {
     private int id;
     private String title;
     private LocalDateTime create_time;

@@ -3,6 +3,7 @@ package dimitrije.andzic.repositories.user;
 import dimitrije.andzic.Pagination;
 import dimitrije.andzic.entities.User;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface UserRepository {
@@ -12,9 +13,9 @@ public interface UserRepository {
 
     User findUserById(int id);
 
-    User addUser(User user);
+    User addUser(User user) throws SQLException;
 
-    User updateUser(User user);
+    User updateUser(User user) throws SQLException;
 
     void changeStatus(int id);
 }

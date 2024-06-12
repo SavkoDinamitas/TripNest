@@ -30,28 +30,18 @@
         </ul>
     </div>
 </nav>
+
+
 <div class="container mt-5">
-    <h1 class="mb-4" id="title">Articles for </h1>
+    <h1 class="mb-4">Most popular articles</h1>
     <div id="articles" class="row">
         <div class="col-md-12" id="articles-column"></div>
     </div>
 </div>
 
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const activityId = urlParams.get('activityId');
-
-    fetch(`/api/activity/${activityId}`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("title").innerText += " " + data.keywords;
-        })
-        .catch(error =>{
-            console.log("xd");
-        })
-
     function getArticles(page){
-        fetch(`/api/articles/activity/${activityId}?page=${page}`)
+        fetch(`/api/articles/views?page=${page}`)
             .then(response => response.json())
             .then(data => {
                 const articlesColumn = document.getElementById('articles-column');
@@ -113,11 +103,13 @@
             })
             .catch(error => console.error('Error fetching destinations:', error));
     }
+
     document.addEventListener('DOMContentLoaded', function() {
         let page = 1;
         getArticles(page);
         loadDestinations();
     });
+
 </script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>

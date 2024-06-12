@@ -39,19 +39,18 @@
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const activityId = urlParams.get('activityId');
+    const destinationId = urlParams.get('destinationId');
 
-    fetch(`/api/activity/${activityId}`)
+    fetch(`/api/destinations/${destinationId}`)
         .then(response => response.json())
         .then(data => {
-            document.getElementById("title").innerText += " " + data.keywords;
+            document.getElementById("title").innerText += " " +data.name;
         })
         .catch(error =>{
             console.log("xd");
         })
-
     function getArticles(page){
-        fetch(`/api/articles/activity/${activityId}?page=${page}`)
+        fetch(`/api/articles/dest/${destinationId}?page=${page}`)
             .then(response => response.json())
             .then(data => {
                 const articlesColumn = document.getElementById('articles-column');
@@ -95,7 +94,6 @@
                 articlesColumn.innerHTML = '<p class="text-danger">Failed to load articles.</p>';
             });
     }
-
     function loadDestinations() {
         fetch('/api/destinations')
             .then(response => response.json())
@@ -113,6 +111,7 @@
             })
             .catch(error => console.error('Error fetching destinations:', error));
     }
+
     document.addEventListener('DOMContentLoaded', function() {
         let page = 1;
         getArticles(page);

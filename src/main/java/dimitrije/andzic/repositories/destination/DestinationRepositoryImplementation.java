@@ -45,7 +45,7 @@ public class DestinationRepositoryImplementation extends AbstractRepository impl
     }
 
     @Override
-    public Destination addDestination(Destination destination) {
+    public Destination addDestination(Destination destination) throws SQLException{
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -65,7 +65,7 @@ public class DestinationRepositoryImplementation extends AbstractRepository impl
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException();
         } finally {
             this.closeStatement(preparedStatement);
             this.closeResultSet(resultSet);
@@ -76,7 +76,7 @@ public class DestinationRepositoryImplementation extends AbstractRepository impl
     }
 
     @Override
-    public Destination updateDestination(Destination destination) {
+    public Destination updateDestination(Destination destination) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -99,7 +99,7 @@ public class DestinationRepositoryImplementation extends AbstractRepository impl
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException();
         } finally {
             this.closeStatement(preparedStatement);
             this.closeResultSet(resultSet);

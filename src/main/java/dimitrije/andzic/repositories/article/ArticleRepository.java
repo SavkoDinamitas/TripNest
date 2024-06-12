@@ -32,4 +32,6 @@ public interface ArticleRepository {
     void deleteArticle(int id);
 
     void deleteActivity(int activity_id, int article_id);
+
+    Activity getActivity(int id);
 }

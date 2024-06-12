@@ -496,4 +496,31 @@ public class ArticleRepositoryImplementation extends AbstractRepository implemen
             this.closeConnection(connection);
         }
     }
+
+    @Override
+    public Activity getActivity(int id) {
+        Activity activity = null;
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = this.newConnection();
+
+            statement = connection.prepareStatement("select * from activities where activity_id = ?");
+            statement.setInt(1, id);
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                activity = new Activity(resultSet.getString(2));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            this.closeStatement(statement);
+            this.closeResultSet(resultSet);
+            this.closeConnection(connection);
+        }
+
+        return activity;
+    }
 }

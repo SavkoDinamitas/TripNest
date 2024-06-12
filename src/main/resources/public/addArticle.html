@@ -66,6 +66,10 @@
             const title = document.getElementById('title').value;
             const content = document.getElementById('content').value;
             const destination = document.getElementById('destination').value;
+            if (title.length > 50){
+                alert("Title cant be longer than 50 characters!");
+                return;
+            }
 
             const articleData = {
                 title: title,

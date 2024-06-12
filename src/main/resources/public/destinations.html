@@ -8,6 +8,7 @@
 </head>
 <body>
 <div class="container mt-5">
+    <button class="btn btn-primary mb-4" onclick="goToUserPage()" id="users" style="display: none">Manage Users</button>
     <h1 class="mb-4">Destinations</h1>
     <button class="btn btn-primary mb-4" onclick="goToAddDestinationPage()" id="add">Add Destination</button>
     <div id="destinations" class="col-md-12"></div>
@@ -18,12 +19,38 @@
         window.location.href = '/addDestination.html';
     }
 
+    function goToUserPage() {
+        window.location.href = '/users.html';
+    }
+
     function goToEditDestinationPage(id, event) {
         event.stopPropagation();
         window.location.href = `/editDestination.html?id=${id}`;
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        fetch('/api/type')
+            .then(response => {
+                if (response.ok) {
+                    response.text().then(data => {
+                        console.log(data);
+                        if(data === '"0"'){
+                            //console.log("ddx");
+                            document.getElementById("users").style.display = 'block';
+                        }
+                    });
+                } else {
+                    //xd
+                }
+            })
+            .catch(error => {
+                document.getElementById("add").style.display = 'none';
+                const p = document.createElement("p");
+                p.classList.add("text-danger");
+                p.innerText = error;
+                document.getElementById("destinations").append(p);
+            });
+
         fetch('/api/type')
             .then(response => {
                 if (response.ok) {

@@ -7,11 +7,36 @@
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Articles</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="index.html">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="popular.html">Popular</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Destinations
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="destination-dropdown">
+          <!-- Destinations will be populated here -->
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
 <div class="container mt-5">
   <div id="article-container" class="border rounded p-4">
     <h1 id="article-title" class="mb-3"></h1>
     <p class="text-muted" id="article-author"></p>
     <p class="text-muted" id="article-date"></p>
+    <p class="text-muted" id="article-views"></p>
     <div id="article-content" class="mt-4"></div>
     <h4 class="mt-5">Activities</h4>
     <ul id="article-activities" class="list-group mb-4"></ul>
@@ -32,7 +57,26 @@
 </div>
 
 <script>
+  function loadDestinations() {
+    fetch('/api/destinations')
+            .then(response => response.json())
+            .then(data => {
+              const dropdownMenu = document.getElementById('destination-dropdown');
+              dropdownMenu.innerHTML = ''; // Clear any existing items
+              data.items.forEach(destination => {
+                const dropdownItem = document.createElement('a');
+                dropdownItem.classList.add('dropdown-item');
+                dropdownItem.href = `/platform/destinationArticles.html?destinationId=${destination.id}`;
+                dropdownItem.textContent = destination.name;
+                dropdownMenu.appendChild(dropdownItem);
+                console.log(destination.name);
+              });
+            })
+            .catch(error => console.error('Error fetching destinations:', error));
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
+    loadDestinations();
     const urlParams = new URLSearchParams(window.location.search);
     const articleId = urlParams.get('articleId');
 
@@ -43,6 +87,7 @@
               document.getElementById('article-author').textContent = 'By ' + article.author.first_name;
               document.getElementById('article-date').textContent = new Date(article.create_time).toLocaleDateString() + " " + new Date(article.create_time).toLocaleTimeString();
               document.getElementById('article-content').textContent = article.content;
+              document.getElementById('article-views').textContent = 'Views: ' + article.views;
 
               const activitiesList = document.getElementById('article-activities');
               article.activities.forEach(activity => {
@@ -90,5 +135,8 @@
     });
   });
 </script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

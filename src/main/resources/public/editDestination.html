@@ -25,6 +25,7 @@
         <button type="submit" class="btn btn-primary">Update</button>
     </form>
     <a class="btn btn-danger" id ="brisanje"> Obriši</a>
+    <p class="text-danger" id="error"></p>
 </div>
 
 <script>
@@ -55,6 +56,11 @@
             const name = document.getElementById('name').value;
             const description = document.getElementById('description').value;
 
+            if(name.length > 30){
+                alert("Destination name can't be longer than 30 characters!");
+                return;
+            }
+
             const destinationData = {
                 name: name,
                 description: description
@@ -71,12 +77,12 @@
                     if (response.ok) {
                         window.location.href = '/destinations.html';
                     } else {
-                        throw new Error('Failed to update destination');
+                        if(response.status === 401)
+                        throw new Error('Not authorized to edit!');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    // Handle error
+                    document.getElementById("error").innerText = error;
                 });
         });
         document.getElementById("brisanje").addEventListener("click", function (){

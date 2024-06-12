@@ -194,6 +194,11 @@
                 destination_id: document.getElementById('destination').value,
             };
 
+            if(updatedArticle.title.length > 50){
+                alert("Title can't be longer than 50 characters!");
+                return;
+            }
+
             fetch(`/api/articles/${articleId}`, {
                 method: 'PUT',
                 headers: {

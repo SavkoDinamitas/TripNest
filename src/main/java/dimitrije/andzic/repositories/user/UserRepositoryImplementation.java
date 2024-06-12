@@ -100,7 +100,7 @@ public class UserRepositoryImplementation extends AbstractRepository implements 
     }
 
     @Override
-    public User addUser(User user) {
+    public User addUser(User user) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -124,7 +124,7 @@ public class UserRepositoryImplementation extends AbstractRepository implements 
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException();
         } finally {
             this.closeStatement(preparedStatement);
             this.closeResultSet(resultSet);
@@ -135,7 +135,7 @@ public class UserRepositoryImplementation extends AbstractRepository implements 
     }
 
     @Override
-    public User updateUser(User user) {
+    public User updateUser(User user) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -162,7 +162,7 @@ public class UserRepositoryImplementation extends AbstractRepository implements 
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException();
         } finally {
             this.closeStatement(preparedStatement);
             this.closeResultSet(resultSet);

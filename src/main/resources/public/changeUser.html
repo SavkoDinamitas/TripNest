@@ -46,13 +46,18 @@
         },
         body: JSON.stringify(updatedUser)
       })
-              .then(response => response.json())
-              .then(data => {
-                //console.log(data);
-                //alert('User updated successfully.');
-                window.location.href = '/users.html'; // Redirect to home page or user list
+              .then(response => {
+                if (response.ok) {
+                  window.location.href = `/users.html`;
+                } else {
+                  response.json().then(data => {
+                    alert(data.error);
+                  });
+                }
               })
-              .catch(error => console.error('Error updating user:', error));
+              .catch(error => {
+
+              });
     }
   </script>
 </head>

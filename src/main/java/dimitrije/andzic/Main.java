@@ -57,6 +57,7 @@ public class Main {
         //rute
         path("/api", () -> {
             get("/type", userService::getType);
+            get("/activity/:id", articleService::getActivity);
             post("/login", (req, res) ->{
                 User u = userService.login(req, res);
                 if(u == null){

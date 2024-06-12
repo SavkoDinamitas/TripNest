@@ -20,7 +20,7 @@
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
-    <div id="xd"></div>
+    <div id="xd" class="text-danger"></div>
 </div>
 
 <script>
@@ -31,6 +31,10 @@
 
             const name = document.getElementById('name').value;
             const description = document.getElementById('description').value;
+            if(name.length > 30){
+                alert("Destination name can't be longer than 30 characters!");
+                return;
+            }
 
             const destinationData = {
                 name: name,
@@ -48,7 +52,11 @@
                     if (response.ok) {
                         window.location.href = '/destinations.html';
                     } else {
-                        throw new Error('You dont have permission to add new destination!');
+                        if(response.status === 401)
+                            throw new Error('You dont have permission to add new destination!');
+                        else{
+                            throw new Error('There is already a destination with the same name');
+                        }
                     }
                 })
                 .catch(error => {
