@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit Destination</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Edit Destination</h1>
+    <form id="editDestinationForm">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" placeholder="Enter destination name" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea class="form-control" id="description" rows="3" placeholder="Enter destination description" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+    <a class="btn btn-danger" id ="brisanje"> Obriši</a>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const destinationId = urlParams.get('id');
+
+        if (!destinationId) {
+            // Handle error
+            return;
+        }
+
+        fetch(`/api/destinations/${destinationId}`)
+            .then(response => response.json())
+            .then(destination => {
+                document.getElementById('name').value = destination.name;
+                document.getElementById('description').value = destination.description;
+            })
+            .catch(error => {
+                console.error('Error fetching destination:', error);
+                // Handle error
+            });
+
+        const form = document.getElementById('editDestinationForm');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+
+            const destinationData = {
+                name: name,
+                description: description
+            };
+
+            fetch(`/api/destinations/${destinationId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(destinationData)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/destinations.html';
+                    } else {
+                        throw new Error('Failed to update destination');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error
+                });
+        });
+        document.getElementById("brisanje").addEventListener("click", function (){
+            fetch(`/api/destinations/${destinationId}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = `/destinations.html`;
+                    } else {
+                        throw new Error('Failed to remove activity');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error
+                });
+        });
+    });
+</script>
+</body>
+</html>

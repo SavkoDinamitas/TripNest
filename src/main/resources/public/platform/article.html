@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Article</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+  <div id="article-container" class="border rounded p-4">
+    <h1 id="article-title" class="mb-3"></h1>
+    <p class="text-muted" id="article-author"></p>
+    <p class="text-muted" id="article-date"></p>
+    <div id="article-content" class="mt-4"></div>
+    <h4 class="mt-5">Activities</h4>
+    <ul id="article-activities" class="list-group mb-4"></ul>
+    <h4>Comments</h4>
+    <ul id="article-comments" class="list-group mb-4"></ul>
+    <form id="comment-form">
+      <div class="form-group">
+        <label for="comment-author">Author</label>
+        <input type="text" class="form-control" id="comment-author" required>
+      </div>
+      <div class="form-group">
+        <label for="comment-text">Comment</label>
+        <textarea class="form-control" id="comment-text" rows="3" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Comment</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const articleId = urlParams.get('articleId');
+
+    fetch(`/api/articles/${articleId}`)
+            .then(response => response.json())
+            .then(article => {
+              document.getElementById('article-title').textContent = article.title;
+              document.getElementById('article-author').textContent = 'By ' + article.author.first_name;
+              document.getElementById('article-date').textContent = new Date(article.create_time).toLocaleDateString() + " " + new Date(article.create_time).toLocaleTimeString();
+              document.getElementById('article-content').textContent = article.content;
+
+              const activitiesList = document.getElementById('article-activities');
+              article.activities.forEach(activity => {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item');
+                li.textContent = activity.keywords;
+                li.addEventListener('click', () => {
+                  window.location.href = `activityArticles.html?activityId=${activity.id}`;
+                });
+                activitiesList.appendChild(li);
+              });
+
+              const commentsList = document.getElementById('article-comments');
+              article.comments.forEach(comment => {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item');
+                li.innerHTML = `<strong>${comment.author}:</strong> ${comment.text}`;
+                commentsList.appendChild(li);
+              });
+            });
+
+    document.getElementById('comment-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const author = document.getElementById('comment-author').value;
+      const text = document.getElementById('comment-text').value;
+
+      fetch(`/api/comments/${articleId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ author, text })
+      })
+              .then(response => response.json())
+              .then(comment => {
+                const commentsList = document.getElementById('article-comments');
+                const li = document.createElement('li');
+                li.classList.add('list-group-item');
+                li.innerHTML = `<strong>${author}:</strong> ${text}`;
+                commentsList.appendChild(li);
+
+                document.getElementById('comment-form').reset();
+              });
+    });
+  });
+</script>
+</body>
+</html>

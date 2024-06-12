@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destinations</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Destinations</h1>
+    <button class="btn btn-primary mb-4" onclick="goToAddDestinationPage()" id="add">Add Destination</button>
+    <div id="destinations" class="col-md-12"></div>
+</div>
+
+<script>
+    function goToAddDestinationPage() {
+        window.location.href = '/addDestination.html';
+    }
+
+    function goToEditDestinationPage(id, event) {
+        event.stopPropagation();
+        window.location.href = `/editDestination.html?id=${id}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/api/type')
+            .then(response => {
+                if (response.ok) {
+                    fetch('/api/destinations')
+                        .then(response => response.json())
+                        .then(data => {
+                            const destinationsContainer = document.getElementById('destinations');
+                            data.items.forEach(destination => {
+                                const destinationCard = document.createElement('div');
+                                destinationCard.classList.add('col-md-4', 'mb-4');
+
+                                destinationCard.innerHTML = `
+                            <div class="card" data-id="${destination.id}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${destination.name}</h5>
+                                    <p class="card-text">${destination.description}</p>
+                                    <button class="btn btn-secondary edit-btn" onclick="goToEditDestinationPage('${destination.id}', event)">Edit</button>
+                                </div>
+                            </div>
+                        `;
+
+                                destinationCard.addEventListener('click', function() {
+                                    const destId = this.querySelector('.card').getAttribute('data-id');
+                                    window.location.href = `/articles.html?destId=${destId}`;
+                                });
+
+                                destinationsContainer.appendChild(destinationCard);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching destinations:', error);
+                            const destinationsContainer = document.getElementById('destinations');
+                            destinationsContainer.innerHTML = '<p class="text-danger">Failed to load destinations.</p>';
+                        });
+                } else {
+                    response.text().then(data => {
+                        document.getElementById("add").style.display = 'none';
+                        const p = document.createElement("p");
+                        p.classList.add("text-danger");
+                        p.innerText = data;
+                        document.getElementById("destinations").append(p);
+                    });
+                }
+            })
+            .catch(error => {
+                document.getElementById("add").style.display = 'none';
+                const p = document.createElement("p");
+                p.classList.add("text-danger");
+                p.innerText = error;
+                document.getElementById("destinations").append(p);
+            });
+
+    });
+</script>
+</body>
+</html>

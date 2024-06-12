@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Article</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Add Article</h1>
+    <form id="addArticleForm">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" class="form-control" id="title" placeholder="Enter article title" required>
+        </div>
+        <div class="form-group">
+            <label for="content">Content</label>
+            <textarea class="form-control" id="content" rows="3" placeholder="Enter article content" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="destination">Destination</label>
+            <select class="form-control" id="destination" required>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <div class="container mt-5" id="addActivityForm" style="display: none;">
+        <h2>Add Activity</h2>
+        <form id="activityForm">
+            <div class="form-group">
+                <label for="activity">Activity</label>
+                <input type="text" class="form-control" id="activity" placeholder="Enter activity" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch destinations and populate the dropdown
+        let articleId;
+        fetch('/api/destinations')
+            .then(response => response.json())
+            .then(data => {
+                const destinationSelect = document.getElementById('destination');
+                data.items.forEach(destination => {
+                    const option = document.createElement('option');
+                    option.value = destination.id;
+                    option.textContent = destination.name;
+                    destinationSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching destinations:', error);
+                // Handle error
+            });
+
+        // Handle form submission
+        const form = document.getElementById('addArticleForm');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const destination = document.getElementById('destination').value;
+
+            const articleData = {
+                title: title,
+                content: content,
+                destination_id: destination,
+            };
+
+            console.log(articleData);
+
+            fetch('/api/articles', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(articleData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('addActivityForm').style.display = 'block';
+                    articleId = data.id;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error
+                });
+        });
+
+        const form1 = document.getElementById('activityForm');
+        form1.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const activity = document.getElementById('activity').value;
+
+            const activityData = {
+                keywords: activity,
+            };
+
+            //console.log(articleData);
+
+            fetch('/api/articles/activities/' + articleId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(activityData)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Clear the input field
+                        document.getElementById('activity').value = '';
+                        // Show a message indicating success
+                        const p = document.createElement("p");
+                        p.classList.add("text-success")
+                        p.innerText = `Successfully added activity ${activity}`
+                        document.getElementById('addActivityForm').append(p);
+                    } else {
+                        throw new Error('Failed to add activity');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error
+                });
+        });
+    });
+</script>
+</body>
+</html>

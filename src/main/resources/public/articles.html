@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Articles</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Articles</h1>
+    <button class="btn btn-secondary" onclick="goToAddArticlePage()" id="add">AddArticle</button>
+    <div id="articles" class="row">
+        <div class="col-md-12" id="articles-column"></div>
+    </div>
+</div>
+
+<script>
+    function goToAddArticlePage() {
+        window.location.href = '/addArticle.html';
+    }
+
+    function goToEditArticlePage(articleId) {
+        window.location.href = `/editArticle.html?id=${articleId}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        fetch('/api/type')
+            .then(response => {
+                if (response.ok) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const destId = urlParams.get('destId');
+
+                    if (!destId) {
+                        document.getElementById('articles-column').innerHTML = '<p class="text-danger">Invalid destination ID.</p>';
+                        return;
+                    }
+
+
+
+                    fetch(`/api/articles/dest/${destId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const articlesColumn = document.getElementById('articles-column');
+                            data.items.forEach(article => {
+                                const articleCard = document.createElement('div');
+                                articleCard.classList.add('card', 'mb-4');
+
+                                articleCard.innerHTML = `
+                            <div class="card-body">
+                                <h5 class="card-title">${article.title}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Destination: ${article.destination.name}</h6>
+                                <p class="card-text">${article.content}</p>
+                                <p class="card-text"><small class="text-muted">Views: ${article.views} | Author: ${article.author.first_name} | Created on: ${new Date(article.create_time).toLocaleDateString()}  ${new Date(article.create_time).toLocaleTimeString()}</small></p>
+                                <button class="btn btn-secondary" onclick="goToEditArticlePage(${article.id})">Edit</button>
+                            </div>
+                        `;
+                                articlesColumn.appendChild(articleCard);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching articles:', error);
+                            const articlesColumn = document.getElementById('articles-column');
+                            articlesColumn.innerHTML = '<p class="text-danger">Failed to load articles.</p>';
+                        });
+                } else {
+                    response.text().then(data => {
+                        document.getElementById("add").style.display = 'none';
+                        const p = document.createElement("p");
+                        p.classList.add("text-danger");
+                        p.innerText = data;
+                        document.getElementById("articles-column").append(p);
+                    });
+                }
+            })
+            .catch(error => {
+                document.getElementById("add").style.display = 'none';
+                const p = document.createElement("p");
+                p.classList.add("text-danger");
+                p.innerText = error;
+                document.getElementById("articles-column").append(p);
+            });
+    });
+</script>
+</body>
+</html>

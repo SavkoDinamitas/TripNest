@@ -7,8 +7,10 @@
         </encoder>
     </appender>
 
-    <root level="debug">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
+
+    <logger name="dimitrije.andzic" level="DEBUG"/>
 
 </configuration>

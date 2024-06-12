@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Article</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Edit Article</h1>
+    <form id="editArticleForm">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" class="form-control" id="title" placeholder="Enter article title" required>
+        </div>
+        <div class="form-group">
+            <label for="content">Content</label>
+            <textarea class="form-control" id="content" rows="3" placeholder="Enter article content" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="destination">Destination</label>
+            <select class="form-control" id="destination" required>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+        <form id="activityForm">
+            <div class="form-group">
+                <label for="keyword">Activities</label>
+                <input type="text" class="form-control" id="keyword" placeholder="Enter activity" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add activity</button>
+            <div id="activities"></div>
+        </form>
+
+    <a class="btn btn-danger" id ="brisanje"> Obriši</a>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = urlParams.get('id');
+        let destinationId;
+
+        if (!articleId) {
+            // Handle error
+            return;
+        }
+
+        function addXd(activ_id, text){
+
+            var span = document.createElement("span");
+            span.classList.add("badge");
+            span.classList.add("bg-secondary");
+            span.dataset.id = activ_id;
+            span.innerHTML = text;
+
+            var button = document.createElement("button");
+            button.type="button";
+            button.classList.add("btn");
+            button.classList.add("btn-default");
+            button.classList.add("btn-sm");
+            button.innerHTML = "X";
+            button.addEventListener("click", function(){
+                var id = this.parentNode.dataset.id;
+                this.parentNode.parentNode.removeChild( this.parentNode );
+                fetch(`/api/articles/activities/${articleId}/${id}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // Reload the page or update activities list
+                        } else {
+                            throw new Error('Failed to remove activity');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Handle error
+                    });
+            });
+
+            span.appendChild(button);
+            document.getElementById("activities").appendChild(span);
+            document.getElementById("activities").appendChild(document.createTextNode(" "));
+        }
+        function addActivity(text){
+            let activ_id;
+            const articleData = {
+              keywords:text
+            };
+            fetch('/api/articles/activities/' + articleId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(articleData)
+            })
+                .then(response => response.json())
+                .then(data => {
+
+                    activ_id = data.activities[data.activities.length-1].id;
+                    console.log(activ_id);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error
+                });
+            var span = document.createElement("span");
+            span.classList.add("badge");
+            span.classList.add("bg-secondary");
+            span.dataset.id = activ_id;
+            span.innerHTML = text;
+
+            var button = document.createElement("button");
+            button.type="button";
+            button.classList.add("btn");
+            button.classList.add("btn-default");
+            button.classList.add("btn-sm");
+            button.innerHTML = "X";
+            button.addEventListener("click", function(){
+                var id = this.parentNode.dataset.id;
+                this.parentNode.parentNode.removeChild( this.parentNode );
+                fetch(`/api/articles/activities/${articleId}/${activ_id}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (response.ok) {
+
+                        } else {
+                            throw new Error('Failed to remove activity');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Handle error
+                    });
+            });
+
+            span.appendChild(button);
+            document.getElementById("activities").appendChild(span);
+            document.getElementById("activities").appendChild(document.createTextNode(" "));
+        }
+
+        const form1 = document.getElementById('activityForm');
+        form1.addEventListener('submit', function(event) {
+            event.preventDefault();
+            addActivity(document.getElementById("keyword").value);
+            document.getElementById("keyword").value = '';
+        });
+
+
+        fetch('/api/destinations')
+            .then(response => response.json())
+            .then(data => {
+                const destinationSelect = document.getElementById('destination');
+                data.items.forEach(destination => {
+                    const option = document.createElement('option');
+                    option.value = destination.id;
+                    option.textContent = destination.name;
+                    destinationSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching destinations:', error);
+                // Handle error
+            });
+
+        fetch(`/api/articles/${articleId}`)
+            .then(response => response.json())
+            .then(article => {
+                document.getElementById('title').value = article.title;
+                document.getElementById('content').value = article.content;
+                document.getElementById('destination').value = article.destination.id;
+                destinationId = article.destination.id;
+                article.activities.forEach(activity => {
+                    addXd(activity.id, activity.keywords)
+                })
+            })
+            .catch(error => {
+                console.error('Error fetching article:', error);
+                // Handle error
+            });
+
+        const editArticleForm = document.getElementById('editArticleForm');
+        editArticleForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const updatedArticle = {
+                title: document.getElementById('title').value,
+                content: document.getElementById('content').value,
+                destination_id: document.getElementById('destination').value,
+            };
+
+            fetch(`/api/articles/${articleId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedArticle)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = `/articles.html?destId=${updatedArticle.destination_id}`;
+                    } else {
+                        throw new Error('Failed to update article');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error
+                });
+        });
+        document.getElementById("brisanje").addEventListener("click", function (){
+            fetch(`/api/articles/${articleId}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = `/articles.html?destId=${destinationId}`;
+                    } else {
+                        throw new Error('Failed to remove activity');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error
+                });
+        });
+    });
+</script>
+</body>
+</html>
